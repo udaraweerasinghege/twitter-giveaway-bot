@@ -19,9 +19,13 @@ def setup_bot():
 
 def get_search_statuses(t):
     search = t.search(q='#giveaway',
-                  count=100)
+                  count=200)
     return search['statuses']
 
+def get_favourites(twitter):
+    favs = twitter.get_favorites(count=100)
+    favs_list = [str(t['id']) for t in favs]
+    return favs_list
 
 def build_tweets_map(statuses):
     to_retweet = {}
@@ -36,7 +40,7 @@ def build_tweets_map(statuses):
         }
     return to_retweet
 
-def retweet(twitter, tweets_map, should_not_tweet_ids):
+def retweet(twitter, tweets_map, should_not_tweet_ids, favourites):
     should_not_tweet_ids_copy = [id for id in should_not_tweet_ids]
     print(len(should_not_tweet_ids_copy))
     num_retweets = 0
@@ -44,7 +48,7 @@ def retweet(twitter, tweets_map, should_not_tweet_ids):
         tweet_id = t_id
         user_id = t_info['user_id']
         # don't retweet if already retweeted
-        if t_id not in should_not_tweet_ids_copy:
+        if t_id not in should_not_tweet_ids_copy and t_id not in favourites:
             try:
                 #like tweet
                 twitter.create_favorite(id=tweet_id)
@@ -71,8 +75,9 @@ previously_tweeted = get_previously_tweeted()
 twitter = setup_bot()
 valid_statuses = get_search_statuses(twitter)
 tweets_map = build_tweets_map(valid_statuses)
+favourites = get_favourites(twitter)
 
-new_list_of_tweets = retweet(twitter, tweets_map, previously_tweeted)
+new_list_of_tweets = retweet(twitter, tweets_map, previously_tweeted, favourites)
 set_previously_tweeted(new_list_of_tweets)
 print('donezo')
 
