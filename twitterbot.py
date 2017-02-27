@@ -1,14 +1,19 @@
 from config import APP_KEY, APP_SECRET, TOKEN_KEY, TOKEN_SECRET
 from twython import Twython, TwythonStreamer
 import pickle
+import os
 
 def get_previously_tweeted():
-    with open ('already_tweeted', 'rb') as fp:
+    curr_file = os.path.realpath(__file__)
+    already_tweeted = curr_file.strip('twitter-bot.py') + 'already_tweeted'
+    with open (already_tweeted, 'rb') as fp:
         tweet_list = pickle.load(fp)
     return tweet_list
 
 def set_previously_tweeted(tweet_ids_list):
-    with open('already_tweeted', 'wb') as fp:
+    curr_file = os.path.realpath(__file__)
+    already_tweeted = curr_file.strip('twitter-bot.py') + 'already_tweeted'
+    with open(already_tweeted, 'wb') as fp:
         pickle.dump(tweet_ids_list, fp)
     return
 
